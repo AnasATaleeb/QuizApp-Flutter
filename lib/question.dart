@@ -43,7 +43,7 @@ class _QuestionsState extends State<Questions> {
           ),
         ),
         const SizedBox(height: 20),
-        ...currentQuestion.getShuffledAnswers().map((e) {
+        ...currentQuestion.shuffledAnswers.map((e) {
           return Container(
             margin: const EdgeInsets.all(10),
             child: AnswerButton(

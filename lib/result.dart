@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/data/questions.dart';
+import 'package:quiz_app/summary.dart';
 
 class Result extends StatelessWidget {
-  const Result(this.selectedAnswers, {super.key});
+  const Result(this._selectedAnswers, this.restartQuiz, {super.key});
 
-  final List<String> selectedAnswers;
+  final List<String> _selectedAnswers;
+  final Function() restartQuiz;
 
-  List<Map<String, Object>> getSummaryData() {
+  List<Map<String, Object>> get _summaryData {
     final List<Map<String, Object>> summary = [];
 
-    for (var i = 0; i < selectedAnswers.length; i++) {
+    for (var i = 0; i < _selectedAnswers.length; i++) {
       summary.add({
         'question_index': i,
         'question': questions[i].text,
         'correct_answer': questions[i].answers[0],
-        'user_answer': selectedAnswers[i],
+        'user_answer': _selectedAnswers[i],
       });
     }
 
@@ -23,6 +25,12 @@ class Result extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var numOfCorrectAnswers = 0;
+    for (var i = 0; i < _selectedAnswers.length; i++) {
+      if (_summaryData[i]['correct_answer'] == _summaryData[i]['user_answer'])
+        numOfCorrectAnswers++;
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -33,57 +41,19 @@ class Result extends StatelessWidget {
             height: 20,
             width: double.infinity,
           ),
-          const Text(
+          Text(
             textAlign: TextAlign.center,
-            'Your answered 3 questions correctly from 5 !',
-            style: TextStyle(
+            'Your answered $numOfCorrectAnswers questions correctly from ${questions.length} questioins !',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 30),
-          ...getSummaryData().map((e) => Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.red[300],
-                        child:
-                            Text(((e['question_index'] as int) + 1).toString()),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(e['question'].toString(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                )),
-                            Text(e['correct_answer'].toString(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(146, 250, 205, 254),
-                                )),
-                            Text(e['user_answer'].toString(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(146, 0, 166, 255),
-                                )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              )),
+          Summary(_summaryData),
           const SizedBox(height: 30),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: restartQuiz,
             icon: const Icon(Icons.restart_alt_outlined),
             style: TextButton.styleFrom(
               backgroundColor: Colors.white,
